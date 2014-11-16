@@ -25,13 +25,13 @@ public class ImagePanel extends JPanel{
     
 
     public ImagePanel() {
-       try {    
+       /*try {    
             URL mapUrl = new URL("https://maps.googleapis.com/maps/api/staticmap?center=27,31&zoom=6&size=500x500");
             image = ImageIO.read(mapUrl);
        } catch (IOException ex) {
             // handle exception...
        }
-        repaint();
+        repaint();*/
     }
     
     public void setCoordinates(String latitude, String longitude){

@@ -110,17 +110,17 @@ public final class MapParametersTopComponent extends TopComponent implements Loo
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
+                    .addComponent(showMapButton)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                             .addComponent(longitudeLabel)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(longitudeValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(longitudeValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                             .addComponent(latitudeLabel)
                             .addGap(18, 18, 18)
-                            .addComponent(latitudeValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(showMapButton))
-                .addContainerGap(215, Short.MAX_VALUE))
+                            .addComponent(latitudeValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(213, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,7 +146,7 @@ public final class MapParametersTopComponent extends TopComponent implements Loo
     }//GEN-LAST:event_latitudeValueActionPerformed
 
     private void showMapButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showMapButtonActionPerformed
-           content.set(Collections.singleton(new Coordinates(latitudeValue.getText(), longitudeValue.getText())), null);
+           content.set(Collections.singleton(new Coordinates(Double.parseDouble(latitudeValue.getText()), Double.parseDouble(longitudeValue.getText()))), null);
     }//GEN-LAST:event_showMapButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

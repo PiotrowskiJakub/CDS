@@ -6,11 +6,10 @@
 package com.cds.map;
 
 import com.cds.api.Coordinates;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import javax.imageio.ImageIO;
+import java.util.List;
+import java.util.Map;
+import static jdk.nashorn.internal.objects.NativeArray.map;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -46,9 +45,19 @@ import org.openide.windows.WindowManager;
     "HINT_MapTopComponent=This is a Map window"
 })
 public final class MapTopComponent extends TopComponent  implements LookupListener {
-
+    private final double topCenterLatitudeDifferent = 4.8403255;
+    private final double leftCenterLongitudeDifferent = 5.5447411;
+    private final double latitudeDifferent = 0.032268835;
+    private final double longitudeDifferent = 0.0369649405;
     private Lookup.Result<Coordinates> allCoordinates;
-    private HashMap<PointCoordinates, PointParameters> pointsMap = new HashMap<PointCoordinates, PointParameters>();
+    private HashMap<PointCoordinates, PointParameters> pointsHashMap = new HashMap<PointCoordinates, PointParameters>();
+    private double centerCoordinateLatitude;
+    private double centerCoordinateLongitude;
+    private double leftTopCoordinateLatitude;
+    private double leftTopCoordinateLongitude;
+    
+    private double tmpLatitude;
+    private double tmpLongitude;
     
     public MapTopComponent() {
         initComponents();
@@ -61,10 +70,39 @@ public final class MapTopComponent extends TopComponent  implements LookupListen
     
     public void resultChanged(LookupEvent le) {
        
-        imagePanel1.setCoordinates(allCoordinates.allInstances().iterator().next().getLatitude(), allCoordinates.allInstances().iterator().next().getLongitude());
+        centerCoordinateLatitude = allCoordinates.allInstances().iterator().next().getLatitude();
+        centerCoordinateLongitude = allCoordinates.allInstances().iterator().next().getLongitude();
+        leftTopCoordinateLatitude = centerCoordinateLatitude - topCenterLatitudeDifferent;
+        leftTopCoordinateLongitude = centerCoordinateLongitude - leftCenterLongitudeDifferent;
         
         
+        imagePanel1.setCoordinates(String.valueOf(centerCoordinateLatitude), String.valueOf(centerCoordinateLongitude));
         
+        tmpLatitude = leftTopCoordinateLatitude;
+        tmpLongitude = leftTopCoordinateLongitude;
+        
+        for(int i = 0; i < 300; i++)
+        {
+            for(int j = 0; j < 300; j++)
+            {
+                pointsHashMap.put(new PointCoordinates(i, j), new PointParameters(tmpLatitude, tmpLongitude));
+                //System.out.println("i: " + i + " j: " + j + " latitude: " + tmpLatitude + " longitude: " + tmpLongitude );
+                tmpLongitude+= longitudeDifferent;
+            }
+            tmpLongitude = leftTopCoordinateLongitude;
+            tmpLatitude += latitudeDifferent;
+        }
+        
+        PointCoordinates tmppc = new PointCoordinates(3,4);
+        
+        //pointsHashMap.get(tmppc).setHeight(30);
+        //int i = 1;
+        for (Map.Entry<PointCoordinates, PointParameters> entry : pointsHashMap.entrySet()) {
+            //PointParameters pointParameters = entry.getValue();
+            //PointCoordinates pointCoordinates = entry.getKey();
+            //System.out.println("Ilosc: " + i + "i: " + entry.getKey().getX() + " j: " + entry.getKey().getY() + " latitude: " + entry.getValue().getLatitude() + " longitude: " + entry.getValue().getLongitude());
+            //i++;
+        }
     }
 
     /**

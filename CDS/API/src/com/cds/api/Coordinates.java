@@ -10,26 +10,26 @@ package com.cds.api;
  * @author Sebastian
  */
 public class Coordinates {
-    private String latitude, longitude;
+    private double latitude, longitude;
 
-    public Coordinates(String latitude, String longitude) {
+    public Coordinates(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
     

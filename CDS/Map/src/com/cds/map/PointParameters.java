@@ -12,34 +12,38 @@ import com.cds.api.Coordinates;
  * @author Sebastian
  */
 public class PointParameters {
-    private Coordinates coordinates;    
-    private Terrain terrain;
+    private double latitude;
+    private double longitude;
+    private boolean land;
     private Integer height;       
-            
-    public enum Terrain {
-        LAND, WATER;  //; is optional
+
+    public PointParameters(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public PointParameters(Coordinates coordinates) {
-        this.coordinates = coordinates;
-    }
-    
-    
-
-    public Coordinates getCoordinates() {
-        return coordinates;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
-    public Terrain getTerrain() {
-        return terrain;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setTerrain(Terrain terrain) {
-        this.terrain = terrain;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public boolean getLand() {
+        return land;
+    }
+
+    public void setLand(boolean land) {
+        this.land = land;
     }
 
     public Integer getHeight() {
@@ -49,6 +53,10 @@ public class PointParameters {
     public void setHeight(Integer height) {
         this.height = height;
     }
+            
+   
+
+    
     
     
     
