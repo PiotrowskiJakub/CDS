@@ -6,15 +6,9 @@
 package com.cds.map;
 
 import com.cds.api.Coordinates;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import static jdk.nashorn.internal.objects.NativeArray.map;
-import org.json.JSONException;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -43,25 +37,15 @@ import org.openide.windows.WindowManager;
 )
 @Messages({
     "CTL_MapAction=Map",
-    "CTL_MapTopComponent=Map Window",
+    "CTL_MapTopComponent=Mapa",
     "HINT_MapTopComponent=This is a Map window"
 })
-public final class MapTopComponent extends TopComponent  implements LookupListener {
-    private final double topCenterLatitudeDifferent = 4.8403255;
-    private final double leftCenterLongitudeDifferent = 5.5447411;
-    private final double latitudeDifferent = 0.032268835;
-    private final double longitudeDifferent = 0.0369649405;
+public final class MapTopComponent extends TopComponent  implements LookupListener 
+{
     private Lookup.Result<Coordinates> allCoordinates;
-    private HashMap<PointCoordinates, PointParameters> pointsHashMap = new HashMap<PointCoordinates, PointParameters>();
-    private double centerCoordinateLatitude;
-    private double centerCoordinateLongitude;
-    private double leftTopCoordinateLatitude;
-    private double leftTopCoordinateLongitude;
     
-    private double tmpLatitude;
-    private double tmpLongitude;
-    
-    public MapTopComponent() {
+    public MapTopComponent() 
+    {
         initComponents();
         setName(Bundle.CTL_MapTopComponent());
         setToolTipText(Bundle.HINT_MapTopComponent());
@@ -70,51 +54,22 @@ public final class MapTopComponent extends TopComponent  implements LookupListen
        allCoordinates.addLookupListener(this);
     }
     
-    public void resultChanged(LookupEvent le) {
+    @Override
+    public void resultChanged(LookupEvent le) 
+    {
        
-        centerCoordinateLatitude = allCoordinates.allInstances().iterator().next().getLatitude();
-        centerCoordinateLongitude = allCoordinates.allInstances().iterator().next().getLongitude();
-        leftTopCoordinateLatitude = centerCoordinateLatitude - topCenterLatitudeDifferent;
-        leftTopCoordinateLongitude = centerCoordinateLongitude - leftCenterLongitudeDifferent;
-        
+        double centerCoordinateLatitude = allCoordinates.allInstances().iterator().next().getLatitude();
+        double centerCoordinateLongitude = allCoordinates.allInstances().iterator().next().getLongitude();
         
         imagePanel1.setCoordinates(String.valueOf(centerCoordinateLatitude), String.valueOf(centerCoordinateLongitude));
-        
-        tmpLatitude = leftTopCoordinateLatitude;
-        tmpLongitude = leftTopCoordinateLongitude;
-        
-        for(int i = 0; i < 300; i++)
-        {
-            for(int j = 0; j < 300; j++)
-            {
-                pointsHashMap.put(new PointCoordinates(i, j), new PointParameters(tmpLatitude, tmpLongitude));
-                //System.out.println("i: " + i + " j: " + j + " latitude: " + tmpLatitude + " longitude: " + tmpLongitude );
-                tmpLongitude+= longitudeDifferent;
-            }
-            tmpLongitude = leftTopCoordinateLongitude;
-            tmpLatitude += latitudeDifferent;
-        }
-        
-        
-        //Przykład dzialania pobierania danych - tablica tmp dla przykladu
-        
-        double[][] tmp = new double[2][2];
-    	tmp[0][0] = 27;
-    	tmp[0][1] = 31;
-    	tmp[1][0] = 28;
-    	tmp[1][1] = 35;
-        
-        //odkomentuj linijki 109-114 i tu jakis maly blad z brakiem modulu/klasy, jak to sie naprawi to jest pelne narzedzie, w eclipse all dziala
-        /*
-        HttpConnect httpConnect = new HttpConnect();
-        try {
-            httpConnect.http(tmp);
-        } catch (JSONException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        */
     }
 
+    public ImagePanel getImagePanel1() 
+    {
+        return imagePanel1;
+    }
+
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

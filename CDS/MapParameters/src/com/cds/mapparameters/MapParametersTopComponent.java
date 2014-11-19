@@ -37,7 +37,7 @@ import org.openide.util.lookup.InstanceContent;
 )
 @Messages({
     "CTL_MapParametersAction=MapParameters",
-    "CTL_MapParametersTopComponent=MapParameters Window",
+    "CTL_MapParametersTopComponent=Parametry mapy",
     "HINT_MapParametersTopComponent=This is a MapParameters window"
 })
 public final class MapParametersTopComponent extends TopComponent implements Lookup.Provider {
