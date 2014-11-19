@@ -10,9 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static jdk.nashorn.internal.objects.NativeArray.map;
+import org.json.JSONException;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -93,16 +95,24 @@ public final class MapTopComponent extends TopComponent  implements LookupListen
             tmpLatitude += latitudeDifferent;
         }
         
-        PointCoordinates tmppc = new PointCoordinates(3,4);
         
-        //pointsHashMap.get(tmppc).setHeight(30);
-        //int i = 1;
-        for (Map.Entry<PointCoordinates, PointParameters> entry : pointsHashMap.entrySet()) {
-            //PointParameters pointParameters = entry.getValue();
-            //PointCoordinates pointCoordinates = entry.getKey();
-            //System.out.println("Ilosc: " + i + "i: " + entry.getKey().getX() + " j: " + entry.getKey().getY() + " latitude: " + entry.getValue().getLatitude() + " longitude: " + entry.getValue().getLongitude());
-            //i++;
+        //Przykład dzialania pobierania danych - tablica tmp dla przykladu
+        
+        double[][] tmp = new double[2][2];
+    	tmp[0][0] = 27;
+    	tmp[0][1] = 31;
+    	tmp[1][0] = 28;
+    	tmp[1][1] = 35;
+        
+        //odkomentuj linijki 109-114 i tu jakis maly blad z brakiem modulu/klasy, jak to sie naprawi to jest pelne narzedzie, w eclipse all dziala
+        /*
+        HttpConnect httpConnect = new HttpConnect();
+        try {
+            httpConnect.http(tmp);
+        } catch (JSONException ex) {
+            Exceptions.printStackTrace(ex);
         }
+        */
     }
 
     /**
