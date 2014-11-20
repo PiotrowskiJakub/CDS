@@ -5,7 +5,6 @@
  */
 package com.cds.cellularautomaton;
 
-import com.cds.api.Coordinates;
 import com.cds.api.PersonCell;
 import com.cds.api.PointCoordinates;
 import com.cds.map.MapTopComponent;
@@ -13,9 +12,11 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -51,6 +52,9 @@ public final class CAParametersTopComponent extends TopComponent implements Look
 {
     private InstanceContent content;
     private Lookup lookup;
+    private LinkedList<PersonCell> peopleList;
+    private double imageWidth;
+    private Thread simulationThread;
     
     public CAParametersTopComponent() {
         initComponents();
@@ -58,6 +62,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         setToolTipText(Bundle.HINT_CAParametersTopComponent());
         content=new InstanceContent();
         lookup=new AbstractLookup(content);
+        peopleList = new LinkedList<PersonCell>();
+        stopSimulationButton.setEnabled(false);
     }
     
     private void initSimulation()
@@ -70,7 +76,14 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         SecureRandom rand = new SecureRandom();
         int population = Integer.parseInt(populationSizeText.getText());
         int radius = Integer.parseInt(radiusText.getText());
-        double imageWidth = ((MapTopComponent) WindowManager.getDefault().findTopComponent("MapTopComponent")).getImagePanel1().getImageWidthWithScale();
+        
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                imageWidth = ((MapTopComponent) WindowManager.getDefault().findTopComponent("MapTopComponent")).getImagePanel1().getImageWidthWithScale();
+            }
+        });
         if(radius >= imageWidth / 2)
         {
             JOptionPane.showMessageDialog(null, "Za duży promień rozrzutu");
@@ -80,13 +93,11 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         
         int startX = rand.nextInt(300 - ((int) (radius/scale)));
         int startY = rand.nextInt(300 - ((int) (radius/scale)));
-        System.out.println(startX * scale + " " + startY * scale);
         if(startX < ((int) (radius/scale)))
             startX += ((int) (radius/scale));
         if(startY < ((int) (radius/scale)))
             startY += ((int) (radius/scale));
         
-        System.out.println(startX * scale + " " + startY * scale);
         for(int i = 0; i < population; i++)
         {
             PersonCell person;
@@ -123,10 +134,248 @@ public final class CAParametersTopComponent extends TopComponent implements Look
                     break;
             }
                 
-//            System.out.println(x * scale + " " + y * scale);
-            person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(x, y));
+            person = new PersonCell(rand.nextBoolean(), rand.nextInt(40), new PointCoordinates(x, y));
+            peopleList.add(person);
             content.set(Collections.singleton(person), null);
         }
+        
+        startSimulation();
+    }
+    
+    private void startSimulation()
+    {
+        SecureRandom rand = new SecureRandom();
+        while(true)
+        {
+            LinkedList<PersonCell> toRemove = new LinkedList<PersonCell>();
+            LinkedList<PersonCell> toAdd = new LinkedList<PersonCell>();
+            synchronized(peopleList)
+            {
+//                try 
+//                {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException ex) {
+//                    Exceptions.printStackTrace(ex);
+//                }
+                for(PersonCell person : peopleList)
+                {
+                    person.setAge(person.getAge() + 1);
+                    if(person.getAge() > 105)
+                    {
+                        toRemove.add(person);
+                        continue;
+                    }        
+                    LinkedList<PersonCell> neighbours = findNeighbours(person);
+                    if(neighbours.isEmpty())
+                    {
+                        toRemove.add(person);
+                        continue;
+                    }
+
+                    for(PersonCell neighbour : neighbours)
+                    {
+                        if(neighbour.getSex() != person.getSex())
+                        {
+                            int fatherX = person.getLivingPlace().getX();
+                            int fatherY = person.getLivingPlace().getY();
+                            int motherX = neighbour.getLivingPlace().getX();
+                            int motherY = neighbour.getLivingPlace().getY();
+                            int choosedX, choosedY;
+                            switch(rand.nextInt(11))
+                            {
+                                case 0:
+                                    choosedX = fatherX++; choosedY = fatherY++;
+                                    break;
+                                case 1:
+                                    choosedX = fatherX++; choosedY = motherY--;
+                                    break;
+                                case 2:
+                                    choosedX = motherX--; choosedY = motherY++;
+                                    break;
+                                case 3:
+                                    choosedX = motherX++; choosedY = fatherY--;
+                                    break;
+                                case 4:
+                                    choosedX = fatherX--; choosedY = fatherY++;
+                                    break;
+                                case 5:
+                                    choosedX = motherX--; choosedY = fatherY++;
+                                    break;
+                                case 6:
+                                    choosedX = motherX--; choosedY = fatherY--;
+                                    break;
+                                case 7:
+                                    choosedX = fatherX--; choosedY = motherY--;
+                                    break;
+                                case 8:
+                                    choosedX = fatherX--; choosedY = motherY++;
+                                    break;
+                                case 9:
+                                    choosedX = motherX++; choosedY = fatherY++;
+                                    break;
+                                default:
+                                    choosedX = motherX--; choosedY = motherY--;
+                                    break;
+                            }
+                            toAdd.add(new PersonCell(rand.nextBoolean(), 0, new PointCoordinates(choosedX, choosedY)));
+                        }
+                    }
+                }
+                for(PersonCell person : toRemove)
+                {
+                    peopleList.remove(person);
+                }
+                for(PersonCell person : toAdd)
+                {
+                    peopleList.add(person);
+                }
+                int i = 0;
+                for(PersonCell person : peopleList)
+                {
+                    if(i == 0)
+                        person.setNewGeneration(true);
+                    content.set(Collections.singleton(person), null);
+                    i++;
+                }
+            }
+        }
+    }
+    
+    private LinkedList<PersonCell> findNeighbours(PersonCell person)
+    {
+        LinkedList<PersonCell> neighbours = new LinkedList<PersonCell>();
+        LinkedList<PersonCell> temp = new LinkedList<PersonCell>();
+        int x = person.getLivingPlace().getX();
+        int y = person.getLivingPlace().getY();
+        if(x == 0 && y == 0)
+        {
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(getPersonByCoordinates(x + 1, y) != null)
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(x == 0 && y == 299)
+        {
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(x == 299 && y == 0)
+        {
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(x == 299 && y == 299)
+        {
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(x == 0)
+        {
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(x == 299)
+        {
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(y == 0)
+        {
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else if(y == 299)
+        {
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        else
+        {
+            if(!(temp = getPersonByCoordinates(x - 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x - 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y - 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+            if(!(temp = getPersonByCoordinates(x + 1, y + 1)).isEmpty())
+                neighbours = addPeopleToNeighbour(temp, neighbours);
+        }
+        
+        return neighbours;
+    }
+    
+    private LinkedList<PersonCell> getPersonByCoordinates(int x, int y)
+    {
+        LinkedList<PersonCell> peopleOnPlace = new LinkedList<PersonCell>();
+        for(PersonCell person : peopleList)
+        {
+            if(person.getLivingPlace().getX() == x && person.getLivingPlace().getY() == y)
+                peopleOnPlace.add(person);
+        }
+        
+        return peopleOnPlace;
+    }
+    
+    private LinkedList<PersonCell> addPeopleToNeighbour(LinkedList<PersonCell> people, LinkedList<PersonCell> neighbours)
+    {
+        for(PersonCell person : people)
+            neighbours.add(person);
+        
+        return neighbours;
     }
 
     /**
@@ -143,6 +392,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         radiusLabel = new javax.swing.JLabel();
         radiusText = new javax.swing.JTextField();
         startSimulationButton = new javax.swing.JButton();
+        stopSimulationButton = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -195,16 +445,43 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
         add(startSimulationButton, gridBagConstraints);
+
+        org.openide.awt.Mnemonics.setLocalizedText(stopSimulationButton, org.openide.util.NbBundle.getMessage(CAParametersTopComponent.class, "CAParametersTopComponent.stopSimulationButton.text")); // NOI18N
+        stopSimulationButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopSimulationButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        add(stopSimulationButton, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void startSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startSimulationButtonActionPerformed
-        initSimulation();
+        
+        simulationThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                initSimulation();
+            }
+        });
+        simulationThread.start();
+        startSimulationButton.setEnabled(false);
+        stopSimulationButton.setEnabled(true);
     }//GEN-LAST:event_startSimulationButtonActionPerformed
+
+    private void stopSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopSimulationButtonActionPerformed
+        simulationThread.interrupt();
+        peopleList.clear();
+        startSimulationButton.setEnabled(true);
+        stopSimulationButton.setEnabled(false);
+    }//GEN-LAST:event_stopSimulationButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel populationSizeLabel;
@@ -212,6 +489,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private javax.swing.JLabel radiusLabel;
     private javax.swing.JTextField radiusText;
     private javax.swing.JButton startSimulationButton;
+    private javax.swing.JButton stopSimulationButton;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

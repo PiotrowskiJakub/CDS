@@ -14,6 +14,7 @@ public class PersonCell
     private boolean sex;
     private int age;
     private PointCoordinates livingPlace;
+    private boolean newGeneration;
 
     public PersonCell(boolean sex, int age, PointCoordinates livingPlace) {
         this.sex = sex;
@@ -43,5 +44,13 @@ public class PersonCell
 
     public void setLivingPlace(PointCoordinates livingPlace) {
         this.livingPlace = livingPlace;
+    }
+
+    public boolean isNewGeneration() {
+        return newGeneration;
+    }
+
+    public void setNewGeneration(boolean newGeneration) {
+        this.newGeneration = newGeneration;
     }
 }

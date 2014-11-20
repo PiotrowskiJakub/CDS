@@ -9,6 +9,8 @@ import com.cds.api.PersonCell;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
@@ -40,7 +42,7 @@ public class ImagePanel extends JPanel implements LookupListener{
         try {    
             URL mapUrl = new URL("https://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=6&size=500x500&sensor=false&visual_refresh=true&style=element:labels|visibility:off&style=feature:transit|visibility:off&style=feature:poi|visibility:off&style=feature:road|visibility:off&style=feature:administrative|visibility:off");
             orginalImage = ImageIO.read(mapUrl);
-            image = orginalImage;
+            image = deepCopy(orginalImage);
        } catch (IOException ex) {}
         this.revalidate();
         this.repaint();
@@ -77,10 +79,23 @@ public class ImagePanel extends JPanel implements LookupListener{
         
         double pointsScale = this.getImageWidthWithScale()/300;
         PersonCell person = peopleList.allInstances().iterator().next();
+        if(person.isNewGeneration() == true)
+        {
+            image = deepCopy(orginalImage);
+            revalidate();
+            repaint();
+        }
         Graphics g = image.getGraphics();
         g.setColor(new Color(100));
-//        System.out.println((int) (person.getLivingPlace().getX()*pointsScale) + " " + (int) (person.getLivingPlace().getY()*pointsScale));
         g.fillOval((int) (person.getLivingPlace().getX()*pointsScale), (int) (person.getLivingPlace().getY()*pointsScale), 2, 2);
         repaint();
+    }
+    
+    private BufferedImage deepCopy(BufferedImage bi) 
+    {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 }
