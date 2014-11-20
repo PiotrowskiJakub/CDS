@@ -70,30 +70,61 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         SecureRandom rand = new SecureRandom();
         int population = Integer.parseInt(populationSizeText.getText());
         int radius = Integer.parseInt(radiusText.getText());
-        int imageWidth = ((MapTopComponent) WindowManager.getDefault().findTopComponent("MapTopComponent")).getImagePanel1().getWidth();
+        double imageWidth = ((MapTopComponent) WindowManager.getDefault().findTopComponent("MapTopComponent")).getImagePanel1().getImageWidthWithScale();
         if(radius >= imageWidth / 2)
         {
             JOptionPane.showMessageDialog(null, "Za duży promień rozrzutu");
             return;
         }
-        System.out.println("IMAGE WIDTH = " + imageWidth);
-        int scale = imageWidth/300;
+        double scale = imageWidth/300;
         
-        int startX = rand.nextInt(300 - (radius/scale)) + (radius/scale);
-        int startY = rand.nextInt(300 - (radius/scale)) + (radius/scale);
+        int startX = rand.nextInt(300 - ((int) (radius/scale)));
+        int startY = rand.nextInt(300 - ((int) (radius/scale)));
+        System.out.println(startX * scale + " " + startY * scale);
+        if(startX < ((int) (radius/scale)))
+            startX += ((int) (radius/scale));
+        if(startY < ((int) (radius/scale)))
+            startY += ((int) (radius/scale));
         
-        System.out.println("STARTX = " + startX + " START Y = " + startY);
+        System.out.println(startX * scale + " " + startY * scale);
         for(int i = 0; i < population; i++)
         {
             PersonCell person;
+            int x,y;
             switch(rand.nextInt(4))
             {
-                case 0 : person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(startX + rand.nextInt(radius/scale), startY + rand.nextInt(radius/scale))); break;
-                case 1 : person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(startX - rand.nextInt(radius/scale), startY - rand.nextInt(radius/scale))); break;
-                case 2 : person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(startX + rand.nextInt(radius/scale), startY - rand.nextInt(radius/scale))); break;
-                default : person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(startX - rand.nextInt(radius/scale), startY + rand.nextInt(radius/scale))); break;
+                case 0 : 
+                    do
+                    {
+                        x = startX + rand.nextInt((int) (radius/scale));
+                        y = startY + rand.nextInt((int) (radius/scale));
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius/scale);
+                    break;
+                case 1 :
+                    do
+                    {
+                        x = startX - rand.nextInt((int) (radius/scale));
+                        y = startY + rand.nextInt((int) (radius/scale));
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius/scale);
+                    break;
+                case 2 :
+                    do
+                    {
+                        x = startX + rand.nextInt((int) (radius/scale));
+                        y = startY - rand.nextInt((int) (radius/scale));
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius/scale);
+                    break;
+                default :
+                    do
+                    {
+                        x = startX - rand.nextInt((int) (radius/scale));
+                        y = startY - rand.nextInt((int) (radius/scale));
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius/scale);
+                    break;
             }
                 
+//            System.out.println(x * scale + " " + y * scale);
+            person = new PersonCell(rand.nextBoolean(), rand.nextInt(100), new PointCoordinates(x, y));
             content.set(Collections.singleton(person), null);
         }
     }

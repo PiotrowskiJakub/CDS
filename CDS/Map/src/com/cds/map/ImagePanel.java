@@ -5,14 +5,12 @@
  */
 package com.cds.map;
 
-import com.cds.api.Coordinates;
 import com.cds.api.PersonCell;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import org.openide.util.Lookup;
@@ -29,6 +27,7 @@ public class ImagePanel extends JPanel implements LookupListener{
     private BufferedImage image, orginalImage;
     private double latitude, longitude;
     private Lookup.Result<PersonCell> peopleList;
+    private double scale;
     
 
     public ImagePanel() 
@@ -47,7 +46,10 @@ public class ImagePanel extends JPanel implements LookupListener{
         this.repaint();
     }
 
-    
+    public double getImageWidthWithScale()
+    {
+        return image.getWidth() * scale;
+    }
     
     @Override
     protected void paintComponent(Graphics g)
@@ -56,11 +58,12 @@ public class ImagePanel extends JPanel implements LookupListener{
         
         if(image == null)
             return;
-        double scale;
+        
         double xScale = getWidth() / (double) image.getWidth();
         double yScale = getHeight() / (double) image.getHeight();
         if (xScale > yScale) scale = yScale;
         else scale = xScale;
+        if(scale > 1) scale = 1;
         g.drawImage(image,getWidth() / 2 - (int) ((image.getWidth() * scale) / 2),
                 getHeight() / 2 - (int) ((image.getHeight() * scale) / 2),
                 (int) (image.getWidth() * scale), (int) (image.getHeight() * scale), null);
@@ -72,11 +75,12 @@ public class ImagePanel extends JPanel implements LookupListener{
         if(image == null)
             return;
         
-        int scale = this.getWidth()/300;
+        double pointsScale = this.getImageWidthWithScale()/300;
         PersonCell person = peopleList.allInstances().iterator().next();
         Graphics g = image.getGraphics();
         g.setColor(new Color(100));
-        g.fillOval(person.getLivingPlace().getX()*scale, person.getLivingPlace().getY()*scale, 2, 2);
+//        System.out.println((int) (person.getLivingPlace().getX()*pointsScale) + " " + (int) (person.getLivingPlace().getY()*pointsScale));
+        g.fillOval((int) (person.getLivingPlace().getX()*pointsScale), (int) (person.getLivingPlace().getY()*pointsScale), 2, 2);
         repaint();
     }
 }
