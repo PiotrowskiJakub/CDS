@@ -175,17 +175,20 @@ public final class CAParametersTopComponent extends TopComponent implements Look
                 {
                     if(!mapsParametersContainer.get(x, y).getPeopleList().isEmpty())
                     {
-                        if(mapsParametersContainer.get(x, y).getPeopleList().get(mapsParametersContainer.get(x, y).getPeopleList().size() - 1).isSatisfacion())
+                        try
                         {
-                            if(rand.nextInt(100) < 20)
+                            if(mapsParametersContainer.get(x, y).getPeopleList().get(mapsParametersContainer.get(x, y).getPeopleList().size() - 1).isSatisfacion())
+                            {
+                                if(rand.nextInt(100) < 20)
+                                {
+                                    movePeople(x, y);
+                                }
+                            }
+                            else
                             {
                                 movePeople(x, y);
                             }
-                        }
-                        else
-                        {
-                            movePeople(x, y);
-                        }
+                        }catch(NullPointerException ex){}
                     }
                 }
             }
@@ -478,6 +481,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         mapsParametersContainer.clearPopulation();
         startSimulationButton.setEnabled(true);
         stopSimulationButton.setEnabled(false);
+        generation = 0;
+        populatioNumberField.setText(Integer.toString(generation));
     }//GEN-LAST:event_stopSimulationButtonActionPerformed
 
     private void populatioNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_populatioNumberFieldActionPerformed
