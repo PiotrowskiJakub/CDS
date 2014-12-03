@@ -9,17 +9,17 @@ package com.cds.api;
  *
  * @author T530
  */
-public class PersonCell 
+public class Person 
 {
     private boolean sex;
     private int age;
-    private PointCoordinates livingPlace;
-    private boolean newGeneration;
+    private boolean satisfacion;
 
-    public PersonCell(boolean sex, int age, PointCoordinates livingPlace) {
+    public Person(boolean sex, int age) {
         this.sex = sex;
         this.age = age;
-        this.livingPlace = livingPlace;
+        this.satisfacion = false;
+        
     }
 
     public boolean getSex() {
@@ -37,20 +37,12 @@ public class PersonCell
     public void setAge(int age) {
         this.age = age;
     }
-
-    public PointCoordinates getLivingPlace() {
-        return livingPlace;
+    
+    public boolean isSatisfacion() {
+        return satisfacion;
     }
 
-    public void setLivingPlace(PointCoordinates livingPlace) {
-        this.livingPlace = livingPlace;
-    }
-
-    public boolean isNewGeneration() {
-        return newGeneration;
-    }
-
-    public void setNewGeneration(boolean newGeneration) {
-        this.newGeneration = newGeneration;
+    public void setSatisfacion(boolean satisfacion) {
+        this.satisfacion = satisfacion;
     }
 }

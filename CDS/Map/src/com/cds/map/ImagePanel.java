@@ -5,14 +5,16 @@
  */
 package com.cds.map;
 
-import com.cds.api.PersonCell;
-import java.awt.Color;
+import com.cds.api.MapsParametersContainer;
+import com.cds.api.Person;
+import com.cds.lookup.LookupObject;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import org.openide.util.Lookup;
@@ -26,16 +28,16 @@ import org.openide.windows.WindowManager;
  */
 public class ImagePanel extends JPanel implements LookupListener{
     
+    private final int COLOR = 100;
     private BufferedImage image, orginalImage;
-    private double latitude, longitude;
-    private Lookup.Result<PersonCell> peopleList;
-    private double scale;
+    private Lookup.Result<LookupObject> newGenerationFlag;
+    private MapsParametersContainer parametersContainer;
     
 
     public ImagePanel() 
     {
-        peopleList = WindowManager.getDefault().findTopComponent("CAParametersTopComponent").getLookup().lookupResult(PersonCell.class);
-        peopleList.addLookupListener(this);
+        newGenerationFlag = WindowManager.getDefault().findTopComponent("CAParametersTopComponent").getLookup().lookupResult(LookupObject.class);
+        newGenerationFlag.addLookupListener(this);
     }
     
     public void setCoordinates(String latitude, String longitude){
@@ -47,11 +49,6 @@ public class ImagePanel extends JPanel implements LookupListener{
         this.revalidate();
         this.repaint();
     }
-
-    public double getImageWidthWithScale()
-    {
-        return image.getWidth() * scale;
-    }
     
     @Override
     protected void paintComponent(Graphics g)
@@ -61,14 +58,16 @@ public class ImagePanel extends JPanel implements LookupListener{
         if(image == null)
             return;
         
-        double xScale = getWidth() / (double) image.getWidth();
-        double yScale = getHeight() / (double) image.getHeight();
-        if (xScale > yScale) scale = yScale;
-        else scale = xScale;
-        if(scale > 1) scale = 1;
-        g.drawImage(image,getWidth() / 2 - (int) ((image.getWidth() * scale) / 2),
-                getHeight() / 2 - (int) ((image.getHeight() * scale) / 2),
-                (int) (image.getWidth() * scale), (int) (image.getHeight() * scale), null);
+//        double xScale = getWidth() / (double) image.getWidth();
+//        double yScale = getHeight() / (double) image.getHeight();
+//        if (xScale > yScale) scale = yScale;
+//        else scale = xScale;
+//        if(scale > 1) scale = 1;
+//                g.drawImage(image,getWidth() / 2 - (int) ((image.getWidth() * scale) / 2),
+//                getHeight() / 2 - (int) ((image.getHeight() * scale) / 2),
+//                (int) (image.getWidth() * scale), (int) (image.getHeight() * scale), null);
+        
+        g.drawImage(image,getWidth()/2 - image.getWidth()/2, getHeight()/2 -  image.getHeight()/2, image.getWidth(), image.getHeight(), null);
     }
 
     @Override
@@ -77,18 +76,23 @@ public class ImagePanel extends JPanel implements LookupListener{
         if(image == null)
             return;
         
-        double pointsScale = this.getImageWidthWithScale()/300;
-        PersonCell person = peopleList.allInstances().iterator().next();
-        if(person.isNewGeneration() == true)
-        {
-            image = deepCopy(orginalImage);
-            revalidate();
-            repaint();
-        }
-        Graphics g = image.getGraphics();
-        g.setColor(new Color(100));
-        g.fillOval((int) (person.getLivingPlace().getX()*pointsScale), (int) (person.getLivingPlace().getY()*pointsScale), 2, 2);
+        image = deepCopy(orginalImage);
+        revalidate();
         repaint();
+        
+        parametersContainer = MapsParametersContainer.getInstance();
+        for(int i = 0; i < MapsParametersContainer.SIZE; i++)
+        {
+            for(int j = 0; j < MapsParametersContainer.SIZE; j++)
+            {
+                ArrayList<Person> localPeople = parametersContainer.get(i, j).getPeopleList();
+                if(!localPeople.isEmpty())
+                {
+                    image.setRGB(i, j, COLOR);
+                    repaint();
+                }
+            }
+        }
     }
     
     private BufferedImage deepCopy(BufferedImage bi) 
