@@ -15,11 +15,17 @@ public class Person
     private int age;
     private boolean satisfacion;
 
-    public Person(boolean sex, int age) {
+    public Person(boolean sex, int age, boolean satisfacion) {
         this.sex = sex;
         this.age = age;
-        this.satisfacion = false;
-        
+        this.satisfacion = satisfacion;
+    }
+    
+    public Person(Person person)
+    {
+        this.sex = person.getSex();
+        this.age = person.getAge();
+        this.satisfacion = person.isSatisfacion();
     }
 
     public boolean getSex() {

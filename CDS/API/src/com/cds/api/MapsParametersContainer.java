@@ -44,4 +44,12 @@ public class MapsParametersContainer {
                 parametersArray[i][j].getPeopleList().clear();
         }
     }
+    
+    public boolean checkWater(int x, int y)
+    {
+        if(parametersArray[x][y].isLand())
+            return false;
+        else
+            return true;
+    }
 }
