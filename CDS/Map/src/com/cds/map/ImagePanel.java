@@ -29,6 +29,7 @@ import org.openide.windows.WindowManager;
 public class ImagePanel extends JPanel implements LookupListener{
     
     private final int COLOR = 100;
+    private int populationNumber = 0;
     private BufferedImage image, orginalImage;
     private Lookup.Result<LookupObject> newGenerationFlag;
     private MapsParametersContainer parametersContainer;
@@ -89,6 +90,8 @@ public class ImagePanel extends JPanel implements LookupListener{
                 if(!localPeople.isEmpty())
                 {
                     image.setRGB(i, j, COLOR);
+                    /*populationNumber++;
+                    System.out.println(populationNumber);*/
                     repaint();
                 }
             }
