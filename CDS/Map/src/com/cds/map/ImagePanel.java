@@ -8,6 +8,7 @@ package com.cds.map;
 import com.cds.api.MapsParametersContainer;
 import com.cds.api.Person;
 import com.cds.lookup.LookupObject;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -28,17 +29,26 @@ import org.openide.windows.WindowManager;
  */
 public class ImagePanel extends JPanel implements LookupListener{
     
-    private final int COLOR = 100;
+    private int color = 100;
     private int populationNumber;
     private BufferedImage image, orginalImage;
     private Lookup.Result<LookupObject> newGenerationFlag;
     private MapsParametersContainer parametersContainer;
+    private Lookup.Result<Integer> populationColor = null;
     
 
     public ImagePanel() 
     {
         newGenerationFlag = WindowManager.getDefault().findTopComponent("CAParametersTopComponent").getLookup().lookupResult(LookupObject.class);
         newGenerationFlag.addLookupListener(this);
+        
+        populationColor = WindowManager.getDefault().findTopComponent("ColorChooserTopComponentTopComponent").getLookup().lookupResult(Integer.class);
+        populationColor.addLookupListener(this);
+        
+        if(populationColor != null){
+            System.out.println(populationColor.toString());
+        }
+        
     }
     
     public void setCoordinates(String latitude, String longitude){
@@ -73,9 +83,18 @@ public class ImagePanel extends JPanel implements LookupListener{
 
     @Override
     public void resultChanged(LookupEvent le) 
-    {
+    {    
+        
         if(image == null)
             return;
+        
+        if(populationColor.allInstances().size() > 0){
+            color = Math.abs(populationColor.allInstances().iterator().next());
+            System.out.println("Co kurwa: " + color);
+            System.out.println("Nie puste!!!");
+             
+        }
+        
         
         image = deepCopy(orginalImage);
         revalidate();
@@ -90,7 +109,7 @@ public class ImagePanel extends JPanel implements LookupListener{
                 ArrayList<Person> localPeople = parametersContainer.get(i, j).getPeopleList();
                 if(!localPeople.isEmpty())
                 {
-                    image.setRGB(i, j, COLOR);
+                    image.setRGB(i, j, color);
                     populationNumber += localPeople.size();
                     repaint();
                 }

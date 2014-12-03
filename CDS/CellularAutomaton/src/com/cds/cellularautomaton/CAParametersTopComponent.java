@@ -168,9 +168,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
             {
                 Thread.sleep(300);
             } catch (InterruptedException ex) 
-            {
-                Exceptions.printStackTrace(ex);
-            }
+            {}
             for(int x = 0; x < MapsParametersContainer.SIZE; x++)
             {
                 for(int y = 0; y < MapsParametersContainer.SIZE; y++)
