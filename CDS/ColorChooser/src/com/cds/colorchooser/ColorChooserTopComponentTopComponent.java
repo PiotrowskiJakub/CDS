@@ -42,7 +42,7 @@ import org.openide.util.lookup.InstanceContent;
 })
 public final class ColorChooserTopComponentTopComponent extends TopComponent implements Lookup.Provider {
 
-    private InstanceContent content;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                private InstanceContent content;
     private Lookup lookup;
     
     public ColorChooserTopComponentTopComponent() {
@@ -112,7 +112,7 @@ public final class ColorChooserTopComponentTopComponent extends TopComponent imp
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         System.out.println(colorChooser.getSelectionModel().getSelectedColor().getRGB());
-        content.set(Collections.singleton(new Color(colorChooser.getSelectionModel().getSelectedColor().getRGB())),null);
+        content.set(Collections.singleton(new Integer(colorChooser.getSelectionModel().getSelectedColor().getRGB())),null);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
