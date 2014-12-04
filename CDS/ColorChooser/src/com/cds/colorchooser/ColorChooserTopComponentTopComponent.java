@@ -28,7 +28,7 @@ import org.openide.util.lookup.InstanceContent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = "explorer", openAtStartup = true, position = 2)
 @ActionID(category = "Window", id = "com.cds.colorchooser.ColorChooserTopComponentTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(

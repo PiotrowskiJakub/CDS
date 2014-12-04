@@ -37,7 +37,7 @@ import org.openide.util.lookup.InstanceContent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "explorer", openAtStartup = true)
+@TopComponent.Registration(mode = "explorer", openAtStartup = true, position = 1)
 @ActionID(category = "Window", id = "com.cds.cellularautomaton.CAParametersTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -58,6 +58,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private SecureRandom rand;
     private int imageWidth;
     private int generation;
+    private boolean runningFlag;
     
     public CAParametersTopComponent() {
         initComponents();
@@ -157,12 +158,13 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         content.set(Collections.singleton(new LookupObject()), null);
         generation = 1;
         populatioNumberField.setText(Integer.toString(generation));
+        runningFlag = true;
         startSimulation();
     }
     
     private void startSimulation()
     {
-        while(true)
+        while(runningFlag)
         {
             try 
             {
@@ -197,6 +199,11 @@ public final class CAParametersTopComponent extends TopComponent implements Look
             generation++;
             populatioNumberField.setText(Integer.toString(generation));
         }
+        mapsParametersContainer.clearPopulation();
+        startSimulationButton.setEnabled(true);
+        stopSimulationButton.setEnabled(false);
+        generation = 0;
+        populatioNumberField.setText(Integer.toString(generation));
     }
     
     private void movePeople(int x, int y)
@@ -477,12 +484,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
 
     private void stopSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopSimulationButtonActionPerformed
 
-        simulationThread.interrupt();
-        mapsParametersContainer.clearPopulation();
-        startSimulationButton.setEnabled(true);
-        stopSimulationButton.setEnabled(false);
-        generation = 0;
-        populatioNumberField.setText(Integer.toString(generation));
+        runningFlag = false;
     }//GEN-LAST:event_stopSimulationButtonActionPerformed
 
     private void populatioNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_populatioNumberFieldActionPerformed

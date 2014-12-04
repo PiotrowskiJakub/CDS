@@ -89,7 +89,7 @@ public class ImagePanel extends JPanel implements LookupListener{
             return;
         
         if(populationColor.allInstances().size() > 0){
-            color = Math.abs(populationColor.allInstances().iterator().next());
+            color = populationColor.allInstances().iterator().next();
             System.out.println("Co kurwa: " + color);
             System.out.println("Nie puste!!!");
              
