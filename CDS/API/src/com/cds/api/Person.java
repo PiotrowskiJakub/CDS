@@ -11,31 +11,25 @@ package com.cds.api;
  */
 public class Person 
 {
-    private boolean sex;
     private int age;
     private boolean satisfacion;
 
-    public Person(boolean sex, int age, boolean satisfacion) {
-        this.sex = sex;
+    public Person(int age, boolean satisfacion) {
         this.age = age;
         this.satisfacion = satisfacion;
     }
     
     public Person(Person person)
     {
-        this.sex = person.getSex();
         this.age = person.getAge();
         this.satisfacion = person.isSatisfacion();
     }
 
-    public boolean getSex() {
-        return sex;
+    public void addYear()
+    {
+        age++;
     }
-
-    public void setSex(boolean sex) {
-        this.sex = sex;
-    }
-
+    
     public int getAge() {
         return age;
     }

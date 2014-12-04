@@ -31,4 +31,15 @@ public class MapsParameter
     public void setPeopleList(ArrayList<Person> peopleList) {
         this.peopleList = peopleList;
     }
+    
+    public boolean addPerson(Person person)
+    {
+        if(peopleList.size() <= 30)
+        {
+            peopleList.add(person);
+            return true;
+        }
+        
+        return false;
+    }
 }

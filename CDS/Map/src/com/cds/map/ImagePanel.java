@@ -115,6 +115,8 @@ public class ImagePanel extends JPanel implements LookupListener{
                 }
             }
         }
+        
+        System.out.println(populationNumber);
     }
     
     private BufferedImage deepCopy(BufferedImage bi) 
