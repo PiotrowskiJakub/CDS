@@ -5,19 +5,26 @@
  */
 package com.cds.simulationparameters;
 
+import com.cds.lookup.PeopleLookupProvider;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -43,13 +50,15 @@ import org.openide.util.lookup.InstanceContent;
     "CTL_SimulationParametersTopComponentTopComponent=SimulationParametersTopComponent Window",
     "HINT_SimulationParametersTopComponentTopComponent=This is a SimulationParametersTopComponent window"
 })
-public final class SimulationParametersTopComponentTopComponent extends TopComponent {
+public final class SimulationParametersTopComponent extends TopComponent implements LookupListener {
 
     private InstanceContent content;
     private Lookup lookup;
+    //private Lookup.Result<Integer> resultPopulationNumber = null;
+    private Integer populationNumber = 0;
     
     
-    public SimulationParametersTopComponentTopComponent() {
+    public SimulationParametersTopComponent() {
         initComponents();
         setName(Bundle.CTL_SimulationParametersTopComponentTopComponent());
         setToolTipText(Bundle.HINT_SimulationParametersTopComponentTopComponent());
@@ -58,6 +67,14 @@ public final class SimulationParametersTopComponentTopComponent extends TopCompo
         lookup=new AbstractLookup(content);
         
         simulationSpeedSlider.addChangeListener(new JSliderListener());
+        
+        //resultPopulationNumber = WindowManager.getDefault().findTopComponent("ImagePanel").getLookup().lookupResult(Integer.class);
+        //resultPopulationNumber.addLookupListener(this);
+        
+        
+        Lookup lookup = PeopleLookupProvider.getInstance().getLookup();
+        Lookup.Result<Integer> result = lookup.lookupResult(Integer.class);
+        result.addLookupListener(this);
         
 
     }
@@ -87,12 +104,12 @@ public final class SimulationParametersTopComponentTopComponent extends TopCompo
         jPanel4.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SimulationParametersTopComponentTopComponent.class, "SimulationParametersTopComponentTopComponent.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SimulationParametersTopComponent.class, "SimulationParametersTopComponent.jLabel1.text")); // NOI18N
 
         populationNumberField.setBackground(new java.awt.Color(205, 216, 216));
         populationNumberField.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         populationNumberField.setForeground(new java.awt.Color(0, 51, 102));
-        populationNumberField.setText(org.openide.util.NbBundle.getMessage(SimulationParametersTopComponentTopComponent.class, "SimulationParametersTopComponentTopComponent.populationNumberField.text")); // NOI18N
+        populationNumberField.setText(org.openide.util.NbBundle.getMessage(SimulationParametersTopComponent.class, "SimulationParametersTopComponent.populationNumberField.text")); // NOI18N
         populationNumberField.setBorder(null);
         populationNumberField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -124,11 +141,15 @@ public final class SimulationParametersTopComponentTopComponent extends TopCompo
         simulationSpeedSlider.setBackground(new java.awt.Color(205, 216, 216));
         simulationSpeedSlider.setMaximum(2000);
         simulationSpeedSlider.setMinimum(30);
+        simulationSpeedSlider.setMinorTickSpacing(980);
         simulationSpeedSlider.setPaintTicks(true);
+        simulationSpeedSlider.setToolTipText(org.openide.util.NbBundle.getMessage(SimulationParametersTopComponent.class, "SimulationParametersTopComponent.simulationSpeedSlider.toolTipText")); // NOI18N
         simulationSpeedSlider.setValue(1015);
+        simulationSpeedSlider.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        simulationSpeedSlider.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SimulationParametersTopComponentTopComponent.class, "SimulationParametersTopComponentTopComponent.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SimulationParametersTopComponent.class, "SimulationParametersTopComponent.jLabel2.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -140,15 +161,15 @@ public final class SimulationParametersTopComponentTopComponent extends TopCompo
                     .addComponent(simulationSpeedSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(67, 67, 67))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(99, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(124, 124, 124)
                 .addComponent(jLabel2)
-                .addGap(188, 188, 188))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(58, Short.MAX_VALUE)
+                .addContainerGap(54, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(simulationSpeedSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -194,6 +215,15 @@ public final class SimulationParametersTopComponentTopComponent extends TopCompo
     
     public void stateChanged(ChangeEvent e) {
 
+    }
+
+    @Override
+    public void resultChanged(LookupEvent le) {        
+         Lookup.Result result = (Lookup.Result) le.getSource();
+         if(result.allInstances().size() > 0){
+             populationNumber = (Integer) result.allInstances().iterator().next();
+             populationNumberField.setText(populationNumber.toString());
+         } 
     }
     
     public class JSliderListener implements ChangeListener{

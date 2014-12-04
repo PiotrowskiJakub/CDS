@@ -8,6 +8,7 @@ package com.cds.map;
 import com.cds.api.MapsParametersContainer;
 import com.cds.api.Person;
 import com.cds.lookup.LookupObject;
+import com.cds.lookup.PeopleLookupProvider;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -16,18 +17,21 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.WindowManager;
 
 /**
  *
  * @author Sebastian
  */
-public class ImagePanel extends JPanel implements LookupListener{
+public class ImagePanel extends JPanel implements LookupListener, Lookup.Provider{
     
     private int color = 100;
     private int populationNumber;
@@ -35,6 +39,9 @@ public class ImagePanel extends JPanel implements LookupListener{
     private Lookup.Result<LookupObject> newGenerationFlag;
     private MapsParametersContainer parametersContainer;
     private Lookup.Result<Color> populationColor = null;
+    
+    private InstanceContent content;
+    private Lookup lookup;
     
 
     public ImagePanel() 
@@ -46,6 +53,15 @@ public class ImagePanel extends JPanel implements LookupListener{
         populationColor.addLookupListener(this);
         
         
+        content=new InstanceContent();
+        lookup=new AbstractLookup(content);
+        
+    }
+    
+    @Override
+    public Lookup getLookup()
+    {
+        return lookup;
     }
     
     public void setCoordinates(String latitude, String longitude){
@@ -109,6 +125,8 @@ public class ImagePanel extends JPanel implements LookupListener{
                 }
             }
         }
+        PeopleLookupProvider.getInstance().getContent().set(Collections.singleton(new Integer(populationNumber)), null);
+
     }
     
     private BufferedImage deepCopy(BufferedImage bi) 

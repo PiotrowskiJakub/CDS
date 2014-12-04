@@ -63,7 +63,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private int generation;
     private boolean runningFlag;
     private Lookup.Result<Integer> resultSimulationSpeed = null;
-    private Integer simulationSpeed;
+    private Integer simulationSpeed = 1015;
     
     public CAParametersTopComponent() {
         initComponents();
@@ -79,6 +79,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         resultSimulationSpeed.addLookupListener(this);
         
     }
+    
+    
     
     // WORKS
     private void loadMapParameters()
@@ -177,7 +179,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         {
             try 
             {
-                Thread.sleep(300);
+                Thread.sleep(simulationSpeed);
             } catch (InterruptedException ex) 
             {}
             for(int x = 0; x < MapsParametersContainer.SIZE; x++)
