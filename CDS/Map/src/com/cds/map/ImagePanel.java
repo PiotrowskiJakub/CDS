@@ -8,6 +8,7 @@ package com.cds.map;
 import com.cds.api.MapsParametersContainer;
 import com.cds.api.Person;
 import com.cds.lookup.LookupObject;
+import com.cds.lookup.PeopleLookupProvider;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -16,25 +17,31 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.WindowManager;
 
 /**
  *
  * @author Sebastian
  */
-public class ImagePanel extends JPanel implements LookupListener{
+public class ImagePanel extends JPanel implements LookupListener, Lookup.Provider{
     
     private int color = 100;
     private int populationNumber;
     private BufferedImage image, orginalImage;
     private Lookup.Result<LookupObject> newGenerationFlag;
     private MapsParametersContainer parametersContainer;
-    private Lookup.Result<Integer> populationColor = null;
+    private Lookup.Result<Color> populationColor = null;
+    
+    private InstanceContent content;
+    private Lookup lookup;
     
 
     public ImagePanel() 
@@ -42,13 +49,19 @@ public class ImagePanel extends JPanel implements LookupListener{
         newGenerationFlag = WindowManager.getDefault().findTopComponent("CAParametersTopComponent").getLookup().lookupResult(LookupObject.class);
         newGenerationFlag.addLookupListener(this);
         
-        populationColor = WindowManager.getDefault().findTopComponent("ColorChooserTopComponentTopComponent").getLookup().lookupResult(Integer.class);
+        populationColor = WindowManager.getDefault().findTopComponent("ColorChooserTopComponentTopComponent").getLookup().lookupResult(Color.class);
         populationColor.addLookupListener(this);
         
-        if(populationColor != null){
-            System.out.println(populationColor.toString());
-        }
         
+        content=new InstanceContent();
+        lookup=new AbstractLookup(content);
+        
+    }
+    
+    @Override
+    public Lookup getLookup()
+    {
+        return lookup;
     }
     
     public void setCoordinates(String latitude, String longitude){
@@ -89,10 +102,7 @@ public class ImagePanel extends JPanel implements LookupListener{
             return;
         
         if(populationColor.allInstances().size() > 0){
-            color = populationColor.allInstances().iterator().next();
-            System.out.println("Co kurwa: " + color);
-            System.out.println("Nie puste!!!");
-             
+            color = populationColor.allInstances().iterator().next().getRGB();             
         }
         
         
@@ -115,8 +125,8 @@ public class ImagePanel extends JPanel implements LookupListener{
                 }
             }
         }
-        
-        System.out.println(populationNumber);
+
+        PeopleLookupProvider.getInstance().getContent().set(Collections.singleton(new Integer(populationNumber)), null);
     }
     
     private BufferedImage deepCopy(BufferedImage bi) 

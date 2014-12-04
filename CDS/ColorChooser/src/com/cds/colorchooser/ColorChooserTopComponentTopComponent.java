@@ -42,7 +42,7 @@ import org.openide.util.lookup.InstanceContent;
 })
 public final class ColorChooserTopComponentTopComponent extends TopComponent implements Lookup.Provider {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                private InstanceContent content;
+    private InstanceContent content;
     private Lookup lookup;
     
     public ColorChooserTopComponentTopComponent() {
@@ -77,11 +77,11 @@ public final class ColorChooserTopComponentTopComponent extends TopComponent imp
         colorPanel.setLayout(colorPanelLayout);
         colorPanelLayout.setHorizontalGroup(
             colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(colorChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 424, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(colorChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         colorPanelLayout.setVerticalGroup(
             colorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(colorChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(colorChooser, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(ColorChooserTopComponentTopComponent.class, "ColorChooserTopComponentTopComponent.jButton1.text")); // NOI18N
@@ -95,10 +95,13 @@ public final class ColorChooserTopComponentTopComponent extends TopComponent imp
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(colorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(164, 164, 164)
-                .addComponent(jButton1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(164, 164, 164)
+                        .addComponent(jButton1))
+                    .addComponent(colorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -111,8 +114,7 @@ public final class ColorChooserTopComponentTopComponent extends TopComponent imp
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        System.out.println(colorChooser.getSelectionModel().getSelectedColor().getRGB());
-        content.set(Collections.singleton(new Integer(colorChooser.getSelectionModel().getSelectedColor().getRGB())),null);
+        content.set(Collections.singleton(new Color(colorChooser.getSelectionModel().getSelectedColor().getRed(), colorChooser.getSelectionModel().getSelectedColor().getGreen(), colorChooser.getSelectionModel().getSelectedColor().getBlue())),null);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
