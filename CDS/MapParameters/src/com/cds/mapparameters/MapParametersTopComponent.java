@@ -120,7 +120,7 @@ public final class MapParametersTopComponent extends TopComponent implements Loo
                             .addComponent(latitudeLabel)
                             .addGap(18, 18, 18)
                             .addComponent(latitudeValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(213, Short.MAX_VALUE))
+                .addContainerGap(115, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

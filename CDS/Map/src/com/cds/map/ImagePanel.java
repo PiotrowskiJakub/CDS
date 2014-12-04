@@ -34,7 +34,7 @@ public class ImagePanel extends JPanel implements LookupListener{
     private BufferedImage image, orginalImage;
     private Lookup.Result<LookupObject> newGenerationFlag;
     private MapsParametersContainer parametersContainer;
-    private Lookup.Result<Integer> populationColor = null;
+    private Lookup.Result<Color> populationColor = null;
     
 
     public ImagePanel() 
@@ -42,12 +42,9 @@ public class ImagePanel extends JPanel implements LookupListener{
         newGenerationFlag = WindowManager.getDefault().findTopComponent("CAParametersTopComponent").getLookup().lookupResult(LookupObject.class);
         newGenerationFlag.addLookupListener(this);
         
-        populationColor = WindowManager.getDefault().findTopComponent("ColorChooserTopComponentTopComponent").getLookup().lookupResult(Integer.class);
+        populationColor = WindowManager.getDefault().findTopComponent("ColorChooserTopComponentTopComponent").getLookup().lookupResult(Color.class);
         populationColor.addLookupListener(this);
         
-        if(populationColor != null){
-            System.out.println(populationColor.toString());
-        }
         
     }
     
@@ -89,10 +86,7 @@ public class ImagePanel extends JPanel implements LookupListener{
             return;
         
         if(populationColor.allInstances().size() > 0){
-            color = populationColor.allInstances().iterator().next();
-            System.out.println("Co kurwa: " + color);
-            System.out.println("Nie puste!!!");
-             
+            color = populationColor.allInstances().iterator().next().getRGB();             
         }
         
         

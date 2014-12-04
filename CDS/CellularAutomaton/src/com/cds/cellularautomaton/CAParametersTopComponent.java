@@ -19,10 +19,13 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+import org.openide.windows.WindowManager;
 
 /**
  * @author Jakub Piotrowski
@@ -49,7 +52,7 @@ import org.openide.util.lookup.InstanceContent;
     "CTL_CAParametersTopComponent=Parametry symulacji",
     "HINT_CAParametersTopComponent=This is a CAParameters window"
 })
-public final class CAParametersTopComponent extends TopComponent implements Lookup.Provider
+public final class CAParametersTopComponent extends TopComponent implements LookupListener
 {
     private Thread simulationThread;
     private MapsParametersContainer mapsParametersContainer;
@@ -59,6 +62,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private int imageWidth;
     private int generation;
     private boolean runningFlag;
+    private Lookup.Result<Integer> resultSimulationSpeed = null;
+    private Integer simulationSpeed;
     
     public CAParametersTopComponent() {
         initComponents();
@@ -69,6 +74,10 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         content=new InstanceContent();
         lookup=new AbstractLookup(content);
         rand = new SecureRandom();
+        
+        resultSimulationSpeed = WindowManager.getDefault().findTopComponent("SimulationParametersTopComponentTopComponent").getLookup().lookupResult(Integer.class);
+        resultSimulationSpeed.addLookupListener(this);
+        
     }
     
     // WORKS
@@ -530,5 +539,12 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     public Lookup getLookup()
     {
         return lookup;
+    }
+
+    @Override
+    public void resultChanged(LookupEvent le) {
+        if(resultSimulationSpeed.allInstances().size() > 0){
+            simulationSpeed = resultSimulationSpeed.allInstances().iterator().next();             
+        }
     }
 }
