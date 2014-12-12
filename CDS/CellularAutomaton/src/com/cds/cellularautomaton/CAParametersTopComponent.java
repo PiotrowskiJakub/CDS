@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -54,12 +53,15 @@ import org.openide.windows.WindowManager;
 })
 public final class CAParametersTopComponent extends TopComponent implements LookupListener
 {
+    private int SIZE;
+    private int DEATH_AGE;
+    private int START_AGE;
+    private int LAST_AGE;
     private Thread simulationThread;
     private MapsParametersContainer mapsParametersContainer;
     private InstanceContent content;
     private Lookup lookup;
     private SecureRandom rand;
-    private int imageWidth;
     private int generation;
     private boolean runningFlag;
     private Lookup.Result<Integer> resultSimulationSpeed = null;
@@ -77,7 +79,6 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         
         resultSimulationSpeed = WindowManager.getDefault().findTopComponent("SimulationParametersTopComponentTopComponent").getLookup().lookupResult(Integer.class);
         resultSimulationSpeed.addLookupListener(this);
-        
     }
     
     
@@ -111,15 +112,15 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         int population = Integer.parseInt(populationSizeText.getText());
         int radius = Integer.parseInt(radiusText.getText());
         
-        imageWidth = MapsParametersContainer.SIZE;
-        if(radius >= (int) (imageWidth / 3))
+        SIZE = MapsParametersContainer.SIZE;
+        if(radius >= (int) (SIZE / 3))
         {
             JOptionPane.showMessageDialog(null, "Za duży promień rozrzutu");
             return;
         }
         
-        int startX = rand.nextInt(imageWidth - radius);
-        int startY = rand.nextInt(imageWidth - radius);
+        int startX = rand.nextInt(SIZE - radius);
+        int startY = rand.nextInt(SIZE - radius);
         if(startX < radius)
             startX += radius;
         if(startY < radius)
@@ -136,73 +137,80 @@ public final class CAParametersTopComponent extends TopComponent implements Look
                     {
                         x = startX + rand.nextInt(radius);
                         y = startY + rand.nextInt(radius);
-                    }while((Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius) || mapsParametersContainer.get(x, y).isLand() == false);
+                    }while((Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius) || mapsParametersContainer.isLand(x, y) == false);
                     break;
                 case 1 :
                     do
                     {
                         x = startX - rand.nextInt(radius);
                         y = startY + rand.nextInt(radius);
-                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.get(x, y).isLand() == false);
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.isLand(x, y) == false);
                     break;
                 case 2 :
                     do
                     {
                         x = startX + rand.nextInt(radius);
                         y = startY - rand.nextInt(radius);
-                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.get(x, y).isLand() == false);
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.isLand(x, y) == false);
                     break;
                 default :
                     do
                     {
                         x = startX - rand.nextInt(radius);
                         y = startY - rand.nextInt(radius);
-                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.get(x, y).isLand() == false);
+                    }while(Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2)) > radius || mapsParametersContainer.isLand(x, y) == false);
                     break;
             }
                 
             boolean satisfaction = isWaterNear(x, y);
             person = new Person(rand.nextInt(40), satisfaction);
-            mapsParametersContainer.get(x, y).addPerson(person);
+            mapsParametersContainer.addPerson(x, y, person);
         }
         
         content.set(Collections.singleton(new LookupObject()), null);
         generation = 1;
         populatioNumberField.setText(Integer.toString(generation));
         runningFlag = true;
+        DEATH_AGE = 400;
+        START_AGE = 5000;
+        LAST_AGE = 0;
         startSimulation();
     }
     
     private void startSimulation()
     {
+        int expansionLevel;
         while(runningFlag)
         {
-            addYear();
+            expansionLevel = MapsParametersContainer.POPULATION_SIZE/1000;
+
+            
+            mapsParametersContainer.addYear();
             try 
             {
                 Thread.sleep(simulationSpeed);
             } catch (InterruptedException ex) 
             {}
-            for(int x = 0; x < MapsParametersContainer.SIZE; x++)
+            for(int x = 0; x < SIZE; x++)
             {
-                for(int y = 0; y < MapsParametersContainer.SIZE; y++)
+                for(int y = 0; y < SIZE; y++)
                 {
-                    if(!mapsParametersContainer.get(x, y).getPeopleList().isEmpty())
+                    if(!mapsParametersContainer.isEmpty(x, y))
                     {
                         reproduction(x, y);
                         death(x, y);
-                        if(!mapsParametersContainer.get(x, y).getPeopleList().isEmpty())
+                        if(!mapsParametersContainer.isEmpty(x, y))
                         {
-                            if(mapsParametersContainer.get(x, y).getPeopleList().get(mapsParametersContainer.get(x, y).getPeopleList().size() - 1).isSatisfacion())
+                            if(mapsParametersContainer.isSatisfaction(x, y, 0))
                             {
-                                if(rand.nextInt(100) < 8)
+                                if(rand.nextInt(100) < expansionLevel)
                                 {
-                                    movePeople(x, y);
+                                    movePeople(x, y, 7, 3);
                                 }
                             }
                             else
                             {
-                                movePeople(x, y);
+                                movePeople(x, y, 9, 4);
                             }
                         }
                     }
@@ -220,38 +228,47 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         populatioNumberField.setText(Integer.toString(generation));
     }
     
-    private void movePeople(int x, int y)
+    private void movePeople(int x, int y, int bound, int difference)
     {
-        for(int i = 0; i < mapsParametersContainer.get(x, y).getPeopleList().size(); i++)
+        for(int i = 0; i < mapsParametersContainer.size(x, y); i++)
         {
-            Person tmpPerson = new Person(mapsParametersContainer.get(x, y).getPeopleList().get(i));
-            ArrayList<Integer> newCoordinates = chooseNewPlace(x, y);
-            mapsParametersContainer.get(newCoordinates.get(0), newCoordinates.get(1)).addPerson(tmpPerson);
+            Person tmpPerson = new Person(mapsParametersContainer.get(x, y, i));
+            ArrayList<Integer> newCoordinates = chooseNewPlace(x, y, bound, difference);
+            if(newCoordinates == null)
+                return;
+            if(isWaterNear(newCoordinates.get(0), newCoordinates.get(1)))
+                tmpPerson.setSatisfacion(true);
+            else
+                tmpPerson.setSatisfacion(false);
+            mapsParametersContainer.addPerson(newCoordinates.get(0), newCoordinates.get(1), tmpPerson);
         }
-        mapsParametersContainer.get(x, y).getPeopleList().clear();
+        mapsParametersContainer.clear(x, y);
     }
-    
-    private ArrayList<Integer> chooseNewPlace(int x, int y)
+        
+    private ArrayList<Integer> chooseNewPlace(int x, int y, int bound, int difference)
     {
         ArrayList<Integer> array = new ArrayList<Integer>();
-        Integer newX = -1;
-        Integer newY = -1;
+        int newX = -1;
+        int newY = -1;
         int xValue, yValue;
+
+        int i = 0;
         do
-        {
-            xValue = rand.nextInt(5) - 2;
-            yValue = rand.nextInt(5) - 2;
-            if(xValue == 0 || yValue == 0)
+        {   
+            xValue = rand.nextInt(bound) - difference;
+            yValue = rand.nextInt(bound) - difference;
+            
+            if(xValue == 0 && yValue == 0)
                 continue;
             
-            newX = new Integer(x + xValue);
-            newY = new Integer(y + yValue);
-        }while(newX < 0 || newX >= MapsParametersContainer.SIZE || newY < 0 || newY >= MapsParametersContainer.SIZE || mapsParametersContainer.checkWater(newX, newY));
+            newX = x + xValue;
+            newY = y + yValue;
+            if(i++ > 1000)
+                return null;
+        }while(newX < 0 || newX >= SIZE || newY < 0 || newY >= SIZE || mapsParametersContainer.checkWater(newX, newY));
         
-        if(newX != null)
-            array.add(newX);
-        if(newY != null)
-            array.add(newY);
+        array.add(newX);
+        array.add(newY);
         
         return array;
     }
@@ -259,11 +276,10 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private void reproduction(int x, int y)
     {
         int probability;
-        int index = 0;
         int i = 0,j = 0;
 
-        if(mapsParametersContainer.get(x, y).getPeopleList().get(index).isSatisfacion())
-            probability = 10;
+        if(mapsParametersContainer.isSatisfaction(x, y, 0))
+            probability = 20;
         else
             probability = 5;
         
@@ -288,10 +304,10 @@ public final class CAParametersTopComponent extends TopComponent implements Look
                     i = 1;j = 0;
                 }
 
-                if( (i == 0 && j == 0) || x+i < 0 || x+i >= MapsParametersContainer.SIZE || y+j < 0 || y+j >= MapsParametersContainer.SIZE)
+                if( (i == 0 && j == 0) || x+i < 0 || x+i >= SIZE || y+j < 0 || y+j >= SIZE)
                     continue;
 
-                if(!mapsParametersContainer.get(x + i, y + j).getPeopleList().isEmpty())
+                if(!mapsParametersContainer.isEmpty(x + i, y + j))
                 {
                     if(rand.nextInt(100) < probability)
                     {
@@ -304,8 +320,9 @@ public final class CAParametersTopComponent extends TopComponent implements Look
                             default : choosedX = x + 1; choosedY = y + 1; break;
                         }
 
-                        if(choosedX > 0 && choosedX < MapsParametersContainer.SIZE && choosedY > 0 && choosedY < MapsParametersContainer.SIZE)
-                            mapsParametersContainer.get(choosedX, choosedY).addPerson(new Person(0, mapsParametersContainer.get(x, y).getPeopleList().get(index).isSatisfacion()));
+                        if(choosedX > 0 && choosedX < SIZE && choosedY > 0 && choosedY < SIZE && !mapsParametersContainer.checkWater(choosedX, choosedY))
+                            mapsParametersContainer.addPerson(choosedX, choosedY, new Person(0, mapsParametersContainer.isSatisfaction(x, y, 0)));
+
                     }
                 }
             }
@@ -315,61 +332,66 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private void death(int x,int y)
     {
         int sum = 0;
-        int size = mapsParametersContainer.get(x, y).getPeopleList().size();
+        if((MapsParametersContainer.POPULATION_SIZE > START_AGE) && (START_AGE < 40000))
+        {
+            DEATH_AGE -= 25;
+            LAST_AGE = START_AGE;
+            START_AGE += 2500;
+        }
+        else if(MapsParametersContainer.POPULATION_SIZE < LAST_AGE && (LAST_AGE < 0))
+        {
+            DEATH_AGE += 25;
+            START_AGE -= 2500;
+            LAST_AGE -= 2500;
+        }
+        
+        int size = mapsParametersContainer.size(x, y);
         for(int i = 0; i < size; i++)
         {
-            sum += mapsParametersContainer.get(x, y).getPeopleList().get(i).getAge();
+            sum += mapsParametersContainer.getAge(x, y, i);
         }
-        if((sum/size) > 300)
-            mapsParametersContainer.get(x, y).getPeopleList().clear();
+        if((sum/size) > DEATH_AGE)
+        {
+            if(mapsParametersContainer.isSatisfaction(x, y, 0))
+            {
+                if(rand.nextInt(100) < 30)
+                    mapsParametersContainer.clear(x, y);
+            }
+            else
+                mapsParametersContainer.clear(x, y);
+            return;
+        }
         
         int emptyValue = 0;
         int compareValue = 0;
-        if(!mapsParametersContainer.get(x, y).getPeopleList().isEmpty())
+
+        for(int i = -5; i <= 5; i++)
         {
-            for(int i = -4; i <= 4; i++)
+            for(int j = -5; j <= 5; j++)
             {
-                for(int j = -4; j <= 4; j++)
+                if((x == 0 && y == 0) || x+i < 0 || x+i >= SIZE || y+j < 0 || y+j >= SIZE)
+                    continue;
+                compareValue++;
+                if(mapsParametersContainer.isEmpty(x+i, y+j))
                 {
-                    if((x == 0 && y == 0) || x+i < 0 || x+i >= MapsParametersContainer.SIZE || y+j < 0 || y+j >= MapsParametersContainer.SIZE)
-                        continue;
-                    compareValue++;
-                    if(mapsParametersContainer.get(x+i, y+j).getPeopleList().isEmpty())
-                    {
-                        emptyValue++;
-                    }
+                    emptyValue++;
                 }
             }
         }
-        if(emptyValue == compareValue)
+        if(emptyValue == compareValue || emptyValue + 1 == compareValue)
             mapsParametersContainer.get(x, y).getPeopleList().clear();
-    }
-    
-    private void addYear()
-    {
-        for(int x = 0; x < MapsParametersContainer.SIZE; x++)
-        {
-            for(int y = 0; y < MapsParametersContainer.SIZE; y++)
-            {
-                if(!mapsParametersContainer.get(x, y).getPeopleList().isEmpty())
-                {
-                    for(int i = 0; i < mapsParametersContainer.get(x, y).getPeopleList().size(); i++)
-                        mapsParametersContainer.get(x, y).getPeopleList().get(i).addYear();
-                }
-            }
-        }
     }
     
     private boolean isWaterNear(int x, int y)
     {
         final int CHECK_AREA = 2; 
-        if(x < CHECK_AREA || y < CHECK_AREA || x > MapsParametersContainer.SIZE - CHECK_AREA - 1 || y > MapsParametersContainer.SIZE - CHECK_AREA - 1)
+        if(x < CHECK_AREA || y < CHECK_AREA || x > SIZE - CHECK_AREA - 1 || y > SIZE - CHECK_AREA - 1)
         {
             for(int i = -CHECK_AREA; i <= CHECK_AREA; i++)
             {
                 for(int j = -CHECK_AREA; j <= CHECK_AREA; j++)
                 {
-                    if(x+i < 0 || x+i > MapsParametersContainer.SIZE-1 || y+j < 0 || y+j > MapsParametersContainer.SIZE-1)
+                    if(x+i < 0 || x+i > SIZE-1 || y+j < 0 || y+j > SIZE-1)
                         continue;
                     if(mapsParametersContainer.checkWater(x + i, y + j))
                         return true;
@@ -547,7 +569,6 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     }//GEN-LAST:event_startSimulationButtonActionPerformed
 
     private void stopSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopSimulationButtonActionPerformed
-
         runningFlag = false;
     }//GEN-LAST:event_stopSimulationButtonActionPerformed
 

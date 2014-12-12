@@ -126,6 +126,7 @@ public class ImagePanel extends JPanel implements LookupListener, Lookup.Provide
             }
         }
 
+        MapsParametersContainer.POPULATION_SIZE = populationNumber;
         PeopleLookupProvider.getInstance().getContent().set(Collections.singleton(new Integer(populationNumber)), null);
     }
     

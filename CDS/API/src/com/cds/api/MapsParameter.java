@@ -34,7 +34,7 @@ public class MapsParameter
     
     public boolean addPerson(Person person)
     {
-        if(peopleList.size() <= 30)
+        if(peopleList.size() <= 10)
         {
             peopleList.add(person);
             return true;

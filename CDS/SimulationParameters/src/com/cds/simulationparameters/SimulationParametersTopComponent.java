@@ -6,12 +6,7 @@
 package com.cds.simulationparameters;
 
 import com.cds.lookup.PeopleLookupProvider;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -24,7 +19,6 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
-import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -38,7 +32,7 @@ import org.openide.windows.WindowManager;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = "properties", openAtStartup = true, position = 2)
 @ActionID(category = "Window", id = "com.cds.simulationparameters.SimulationParametersTopComponentTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(

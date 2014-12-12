@@ -28,7 +28,7 @@ import org.openide.util.lookup.InstanceContent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "properties", openAtStartup = true)
+@TopComponent.Registration(mode = "properties", openAtStartup = true, position = 1)
 @ActionID(category = "Window", id = "com.cds.mapparameters.MapParametersTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
