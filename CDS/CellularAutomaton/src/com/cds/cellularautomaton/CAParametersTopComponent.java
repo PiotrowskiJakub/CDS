@@ -5,6 +5,7 @@
  */
 package com.cds.cellularautomaton;
 
+import com.cds.api.Coordinates;
 import com.cds.api.MapsParametersContainer;
 import com.cds.api.Person;
 import com.cds.assetapi.AssetLoader;
@@ -17,6 +18,7 @@ import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -65,20 +67,26 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     private int generation;
     private boolean runningFlag;
     private Lookup.Result<Integer> resultSimulationSpeed = null;
+    private Lookup.Result<Coordinates> allCoordinates;
     private Integer simulationSpeed = 1015;
+    private int latitude, longtitude;
     
     public CAParametersTopComponent() {
         initComponents();
         setName(Bundle.CTL_CAParametersTopComponent());
         setToolTipText(Bundle.HINT_CAParametersTopComponent());
         mapsParametersContainer = MapsParametersContainer.getInstance();
-        loadMapParameters();
         content=new InstanceContent();
         lookup=new AbstractLookup(content);
         rand = new SecureRandom();
         
+        startSimulationButton.setEnabled(false);
+        stopSimulationButton.setEnabled(false);
+        
         resultSimulationSpeed = WindowManager.getDefault().findTopComponent("SimulationParametersTopComponentTopComponent").getLookup().lookupResult(Integer.class);
         resultSimulationSpeed.addLookupListener(this);
+        allCoordinates = WindowManager.getDefault().findTopComponent("MapParametersTopComponent").getLookup().lookupResult(Coordinates.class);
+        allCoordinates.addLookupListener(this);
     }
     
     
@@ -86,7 +94,6 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     // WORKS
     private void loadMapParameters()
     {
-        AssetLoader.load();
         JsonArray arrayMatrix = AssetLoader.mapParametersJsonMatrix;
         
         for(int i=0; i<arrayMatrix.size(); i++)
@@ -107,6 +114,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         if(populationSizeText.getText().equals("") || radiusText.getText().equals(""))
         {
             JOptionPane.showMessageDialog(null, "Proszę uzupełnić parametry symulacji");
+            startSimulationButton.setEnabled(true);
+            stopSimulationButton.setEnabled(false);
             return;
         }
         int population = Integer.parseInt(populationSizeText.getText());
@@ -556,6 +565,12 @@ public final class CAParametersTopComponent extends TopComponent implements Look
 
     private void startSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startSimulationButtonActionPerformed
 
+        if(latitude == 0 || longtitude == 0)
+        {
+            JOptionPane.showMessageDialog(null, "Proszę załadować mapę");
+            return;
+        }
+        loadMapParameters();
         simulationThread = new Thread(new Runnable() {
 
             @Override
@@ -621,6 +636,19 @@ public final class CAParametersTopComponent extends TopComponent implements Look
     public void resultChanged(LookupEvent le) {
         if(resultSimulationSpeed.allInstances().size() > 0){
             simulationSpeed = resultSimulationSpeed.allInstances().iterator().next();             
+        }
+        if(allCoordinates.allInstances().size() > 0)
+        {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            latitude = (int) allCoordinates.allInstances().iterator().next().getLatitude();
+            longtitude = (int) allCoordinates.allInstances().iterator().next().getLongitude();
+        
+            AssetLoader.load(String.valueOf(latitude), String.valueOf(longtitude));
+            startSimulationButton.setEnabled(true);
         }
     }
 }

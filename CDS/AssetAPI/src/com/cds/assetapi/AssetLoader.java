@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,10 +19,18 @@ public class AssetLoader
 {
     public static JsonArray mapParametersJsonMatrix;
     
-    public static void load()
+    public static void load(String latitude, String longitude)
     {
         ClassLoader cl = AssetLoader.class.getClassLoader();
-        Reader reader = new InputStreamReader(cl.getResourceAsStream("com/cds/files/tablica.json"));
+        Reader reader = null;
+        try
+        {
+            reader = new InputStreamReader(cl.getResourceAsStream("com/cds/files/" + latitude + longitude + ".json"));
+        }catch(NullPointerException ex)
+        {
+            JOptionPane.showMessageDialog(null, "Aktualnie brak danych dla podanych współrzędnych");
+            return;
+        }
         JsonParser parser = new JsonParser();
         mapParametersJsonMatrix = (JsonArray) parser.parse(reader);
     }
