@@ -640,7 +640,7 @@ public final class CAParametersTopComponent extends TopComponent implements Look
         if(allCoordinates.allInstances().size() > 0)
         {
             try {
-                Thread.sleep(100);
+                Thread.sleep(50);
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -648,7 +648,8 @@ public final class CAParametersTopComponent extends TopComponent implements Look
             longtitude = (int) allCoordinates.allInstances().iterator().next().getLongitude();
         
             AssetLoader.load(String.valueOf(latitude), String.valueOf(longtitude));
-            startSimulationButton.setEnabled(true);
+            if(!stopSimulationButton.isEnabled())
+                startSimulationButton.setEnabled(true);
         }
     }
 }
